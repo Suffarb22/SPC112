@@ -1,0 +1,369 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.wrap{padding:1rem 0}
+
+.header{border-radius:var(--border-radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.25rem;background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 40%,#ec4899 100%);position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08)}
+.header::after{content:'';position:absolute;bottom:-20px;left:40%;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.06)}
+.header h2{font-size:20px;font-weight:500;color:#fff;margin-bottom:3px;position:relative}
+.header p{font-size:13px;color:rgba(255,255,255,.75);position:relative}
+
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+
+label{font-size:13px;color:var(--color-text-secondary);display:block;margin-bottom:4px}
+.section-title{font-size:14px;font-weight:500;margin-bottom:10px;color:var(--color-text-primary)}
+
+.tab{padding:6px 14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;font-size:13px;background:transparent;color:var(--color-text-secondary);transition:all .25s;font-weight:500}
+.tab.fcfs.active{background:#6366f1;border-color:#6366f1;color:#fff}
+.tab.psjf.active{background:#10b981;border-color:#10b981;color:#fff}
+.tab.npsjf.active{background:#f59e0b;border-color:#f59e0b;color:#fff}
+.tab.rr.active{background:#ec4899;border-color:#ec4899;color:#fff}
+.algo-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+
+.proc-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap;padding:7px 10px;border-radius:var(--border-radius-md);transition:background .2s}
+.proc-row:hover{background:var(--color-background-secondary)}
+.proc-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.proc-name{font-size:13px;font-weight:500;min-width:22px}
+
+.run-btn{width:100%;padding:10px;border-radius:var(--border-radius-md);font-size:14px;font-weight:500;cursor:pointer;border:none;color:#fff;background:linear-gradient(135deg,#6366f1,#ec4899);transition:transform .15s,opacity .15s;letter-spacing:.3px}
+.run-btn:hover{transform:scale(1.02);opacity:.92}
+.run-btn:active{transform:scale(.98)}
+
+.gantt-outer{overflow-x:auto;margin-top:8px}
+.gantt{display:flex;height:52px;border-radius:var(--border-radius-md);overflow:hidden;gap:1px;background:var(--color-border-tertiary)}
+.gantt-block{display:flex;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;gap:1px;transform-origin:bottom;transition:filter .2s}
+.gantt-block:hover{filter:brightness(1.18)}
+.gb-label{color:#fff;font-size:12px;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.35)}
+.gb-dur{color:rgba(255,255,255,.7);font-size:9px}
+
+.tick-row{position:relative;height:16px;margin-top:3px;font-size:10px;color:var(--color-text-tertiary)}
+.tick{position:absolute;top:0}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)}
+.legend-box{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.metric{border-radius:var(--border-radius-md);padding:.875rem;text-align:center;position:relative;overflow:hidden}
+.metric-val{font-size:22px;font-weight:500;color:#fff}
+.metric-lbl{font-size:11px;color:rgba(255,255,255,.8);margin-top:2px}
+.m1{background:linear-gradient(135deg,#6366f1,#8b5cf6)}
+.m2{background:linear-gradient(135deg,#10b981,#059669)}
+.m3{background:linear-gradient(135deg,#f59e0b,#d97706)}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:500;font-size:12px;color:var(--color-text-secondary);padding:8px 10px;border-bottom:0.5px solid var(--color-border-tertiary)}
+td{padding:8px 10px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.td-proc{display:flex;align-items:center;gap:8px}
+.td-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+
+@keyframes slideInUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes growX{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes countUp{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,.4)}50%{box-shadow:0 0 0 8px rgba(99,102,241,0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes rowIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes metricPop{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes glow{0%,100%{opacity:1}50%{opacity:.6}}
+
+.anim-slide{animation:slideInUp .45s ease both}
+.anim-fade{animation:fadeIn .5s ease both}
+.anim-row{animation:rowIn .35s ease both}
+.anim-metric{animation:metricPop .5s cubic-bezier(.34,1.56,.64,1) both}
+
+.processing-bar{height:4px;border-radius:2px;background:linear-gradient(90deg,#6366f1,#8b5cf6,#ec4899,#6366f1);background-size:200% 100%;animation:shimmer 1.5s linear infinite;margin-bottom:10px}
+
+.algo-desc-box{font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px;margin-bottom:10px;line-height:1.6;border-left:3px solid #6366f1;transition:border-color .3s}
+</style>
+
+<div class="wrap">
+<div class="header">
+  <h2>🖥️ Simulator Penjadwalan CPU</h2>
+  <p>FCFS &nbsp;·&nbsp; Preemptive SJF &nbsp;·&nbsp; Non-Preemptive SJF &nbsp;·&nbsp; Round Robin</p>
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <p class="section-title">⚙️ Daftar Proses</p>
+    <div id="proc-list"></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button onclick="addProc()" style="flex:1;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:var(--border-radius-md);padding:8px 12px;cursor:pointer;font-size:13px;font-weight:500;transition:transform .15s" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">+ Tambah Proses</button>
+      <button onclick="resetProcs()" style="padding:8px 12px;color:#ef4444;border:0.5px solid #ef4444;border-radius:var(--border-radius-md);font-size:13px;background:transparent;cursor:pointer;transition:background .2s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">Reset</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="section-title">🎯 Pilih Algoritma</p>
+    <div class="algo-tabs">
+      <button class="tab fcfs active" onclick="setAlgo('FCFS',this)">FCFS</button>
+      <button class="tab psjf" onclick="setAlgo('PSJF',this)">P-SJF</button>
+      <button class="tab npsjf" onclick="setAlgo('NPSJF',this)">NP-SJF</button>
+      <button class="tab rr" onclick="setAlgo('RR',this)">Round Robin</button>
+    </div>
+    <div id="algo-desc" class="algo-desc-box"></div>
+    <div id="rr-quantum" style="display:none;margin-bottom:10px">
+      <label>⏱ Time Quantum</label>
+      <input type="number" id="quantum" value="2" min="1" max="20" style="width:80px">
+    </div>
+    <button class="run-btn" onclick="runSim()" id="run-btn">▶ Jalankan Simulasi</button>
+  </div>
+</div>
+
+<div id="result-area"></div>
+</div>
+
+<script>
+const PROC_COLORS=[
+  ['#6366f1','#eef2ff'],['#10b981','#ecfdf5'],['#f59e0b','#fffbeb'],
+  ['#ec4899','#fdf2f8'],['#3b82f6','#eff6ff'],['#8b5cf6','#f5f3ff'],
+  ['#ef4444','#fef2f2'],['#14b8a6','#f0fdfa'],['#f97316','#fff7ed'],['#84cc16','#f7fee7']
+];
+const ALGO_DESC={
+  FCFS:'Proses dieksekusi sesuai urutan kedatangan. Sederhana namun bisa menyebabkan convoy effect jika proses panjang datang lebih dulu.',
+  PSJF:'Proses dengan sisa burst time terpendek diprioritaskan dan bisa menginterupsi proses yang sedang berjalan (preemptive).',
+  NPSJF:'Proses terpendek diprioritaskan saat CPU kosong. Proses yang sedang berjalan tidak bisa diinterupsi.',
+  RR:'Setiap proses mendapat jatah waktu (quantum) secara bergantian. Adil dan cocok untuk sistem time-sharing.'
+};
+const ALGO_COLORS={FCFS:'#6366f1',PSJF:'#10b981',NPSJF:'#f59e0b',RR:'#ec4899'};
+
+let algo='FCFS',procId=1,procs=[];
+
+function setAlgo(a,btn){
+  algo=a;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('rr-quantum').style.display=a==='RR'?'block':'none';
+  const desc=document.getElementById('algo-desc');
+  desc.style.opacity='0';desc.style.transform='translateY(4px)';
+  setTimeout(()=>{desc.textContent=ALGO_DESC[a];desc.style.borderLeftColor=ALGO_COLORS[a];desc.style.transition='opacity .3s,transform .3s,border-color .3s';desc.style.opacity='1';desc.style.transform='translateY(0)'},150);
+  document.getElementById('run-btn').style.background=`linear-gradient(135deg,${ALGO_COLORS[a]},#6366f1)`;
+}
+
+function addProc(){
+  const ci=procs.length%PROC_COLORS.length;
+  const p={id:procId++,name:'P'+(procId-1),arrival:0,burst:Math.floor(Math.random()*7)+2,ci};
+  procs.push(p);renderProcList(true);
+}
+
+function removeProc(id){
+  procs=procs.filter(p=>p.id!==id);
+  renderProcList(false);
+}
+
+function renderProcList(animate){
+  const el=document.getElementById('proc-list');
+  if(!procs.length){el.innerHTML='<p style="font-size:13px;color:var(--color-text-tertiary);padding:8px 0">Belum ada proses. Klik tombol di bawah.</p>';return;}
+  el.innerHTML=procs.map((p,i)=>`
+    <div class="proc-row${animate&&i===procs.length-1?' anim-row':''}" style="${animate&&i===procs.length-1?'animation-delay:0s':''}">
+      <span class="proc-dot" style="background:${PROC_COLORS[p.ci][0]};box-shadow:0 0 6px ${PROC_COLORS[p.ci][0]}66"></span>
+      <span class="proc-name" style="color:${PROC_COLORS[p.ci][0]}">${p.name}</span>
+      <span style="font-size:11px;color:var(--color-text-secondary)">Tiba</span>
+      <input type="number" min="0" max="99" value="${p.arrival}" oninput="procs[${i}].arrival=+this.value" style="width:55px">
+      <span style="font-size:11px;color:var(--color-text-secondary)">Burst</span>
+      <input type="number" min="1" max="99" value="${p.burst}" oninput="procs[${i}].burst=+this.value" style="width:55px">
+      <button onclick="removeProc(${p.id})" style="padding:3px 8px;font-size:12px;color:#ef4444;border:0.5px solid #ef4444;border-radius:var(--border-radius-md);background:transparent;cursor:pointer;transition:background .15s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">✕</button>
+    </div>`).join('');
+}
+
+function resetProcs(){
+  procs=[];procId=1;renderProcList(false);
+  const r=document.getElementById('result-area');
+  r.style.transition='opacity .3s';r.style.opacity='0';
+  setTimeout(()=>{r.innerHTML='';r.style.opacity='1'},300);
+}
+
+function runSim(){
+  if(!procs.length){alert('Tambah minimal 1 proses!');return;}
+  const btn=document.getElementById('run-btn');
+  btn.textContent='⏳ Memproses...';btn.disabled=true;
+  setTimeout(()=>{
+    btn.textContent='▶ Jalankan Simulasi';btn.disabled=false;
+    const ps=procs.map(p=>({...p,color:PROC_COLORS[p.ci][0],lc:PROC_COLORS[p.ci][1],remaining:p.burst}));
+    let gantt=[];
+    if(algo==='FCFS')gantt=fcfs(ps);
+    else if(algo==='PSJF')gantt=psjf(ps);
+    else if(algo==='NPSJF')gantt=npsjf(ps);
+    else if(algo==='RR')gantt=rr(ps,+document.getElementById('quantum').value||2);
+    renderResult(ps,gantt);
+  },600);
+}
+
+function fcfs(ps){
+  const s=[...ps].sort((a,b)=>a.arrival-b.arrival);
+  let t=0,g=[];
+  for(const p of s){if(t<p.arrival)t=p.arrival;g.push({name:p.name,start:t,end:t+p.burst,color:p.color,lc:p.lc});t+=p.burst;}
+  return g;
+}
+
+function npsjf(ps){
+  const s=[...ps].sort((a,b)=>a.arrival-b.arrival);
+  let t=0,g=[],done=new Set();
+  while(done.size<s.length){
+    const av=s.filter(p=>!done.has(p.id)&&p.arrival<=t);
+    if(!av.length){t++;continue;}
+    const p=av.reduce((a,b)=>a.burst<b.burst?a:b);
+    g.push({name:p.name,start:t,end:t+p.burst,color:p.color,lc:p.lc});
+    t+=p.burst;done.add(p.id);
+  }
+  return g;
+}
+
+function psjf(ps){
+  const rem=Object.fromEntries(ps.map(p=>[p.id,p.burst]));
+  let t=0,g=[],done=new Set(),last=null,ls=0;
+  const maxT=ps.reduce((a,b)=>a+b.burst,0)+Math.max(...ps.map(p=>p.arrival))+5;
+  while(done.size<ps.length&&t<=maxT){
+    const av=ps.filter(p=>!done.has(p.id)&&p.arrival<=t&&rem[p.id]>0);
+    if(!av.length){if(last){g.push({name:last.name,start:ls,end:t,color:last.color,lc:last.lc});last=null;}t++;continue;}
+    const p=av.reduce((a,b)=>rem[a.id]<rem[b.id]?a:b);
+    if(last&&last.id!==p.id){g.push({name:last.name,start:ls,end:t,color:last.color,lc:last.lc});ls=t;}
+    if(!last||last.id!==p.id){last=p;ls=t;}
+    rem[p.id]--;
+    if(rem[p.id]===0){done.add(p.id);g.push({name:p.name,start:ls,end:t+1,color:p.color,lc:p.lc});last=null;ls=t+1;}
+    t++;
+  }
+  if(last)g.push({name:last.name,start:ls,end:t,color:last.color,lc:last.lc});
+  return mergeG(g);
+}
+
+function mergeG(g){
+  const m=[];
+  for(const b of g){if(m.length&&m[m.length-1].name===b.name&&m[m.length-1].end===b.start)m[m.length-1].end=b.end;else m.push({...b});}
+  return m;
+}
+
+function rr(ps,q){
+  const rem=Object.fromEntries(ps.map(p=>[p.id,p.burst]));
+  const s=[...ps].sort((a,b)=>a.arrival-b.arrival);
+  let t=0,g=[],queue=[],idx=0;
+  if(s.length&&s[0].arrival===0){queue.push(s[0]);idx=1;}
+  while(queue.length||idx<s.length){
+    if(!queue.length){t=s[idx].arrival;queue.push(s[idx++]);}
+    const p=queue.shift();
+    const run=Math.min(q,rem[p.id]);
+    g.push({name:p.name,start:t,end:t+run,color:p.color,lc:p.lc});
+    t+=run;rem[p.id]-=run;
+    while(idx<s.length&&s[idx].arrival<=t){queue.push(s[idx++]);}
+    if(rem[p.id]>0)queue.push(p);
+  }
+  return g;
+}
+
+function computeMetrics(ps,gantt){
+  return ps.map(p=>{
+    const b=gantt.filter(g=>g.name===p.name);
+    if(!b.length)return null;
+    const finish=Math.max(...b.map(x=>x.end));
+    return{name:p.name,arrival:p.arrival,burst:p.burst,finish,tat:finish-p.arrival,wait:finish-p.arrival-p.burst,color:p.color,lc:p.lc};
+  }).filter(Boolean);
+}
+
+function animateCounter(el,target,decimals,suffix,delay){
+  setTimeout(()=>{
+    const dur=800,start=performance.now();
+    function step(now){
+      const t=Math.min((now-start)/dur,1);
+      const ease=1-Math.pow(1-t,3);
+      el.textContent=(target*ease).toFixed(decimals)+(suffix||'');
+      if(t<1)requestAnimationFrame(step);
+      else el.textContent=target.toFixed(decimals)+(suffix||'');
+    }
+    requestAnimationFrame(step);
+  },delay);
+}
+
+function renderResult(ps,gantt){
+  const metrics=computeMetrics(ps,gantt);
+  const avgWait=metrics.reduce((a,b)=>a+b.wait,0)/metrics.length;
+  const avgTat=metrics.reduce((a,b)=>a+b.tat,0)/metrics.length;
+  const totalTime=Math.max(...gantt.map(g=>g.end));
+  const busyTime=gantt.reduce((a,g)=>a+(g.end-g.start),0);
+  const util=(busyTime/totalTime)*100;
+  const algoLabel={'FCFS':'First Come First Served','PSJF':'Preemptive SJF','NPSJF':'Non-Preemptive SJF','RR':'Round Robin'}[algo];
+  const ac=ALGO_COLORS[algo];
+
+  const scale=totalTime||1;
+  const ganttBlocks=gantt.map((g,i)=>{
+    const w=((g.end-g.start)/scale*100).toFixed(2);
+    const dur=g.end-g.start;
+    return `<div class="gantt-block" style="width:${w}%;background:${g.color};min-width:26px;animation:growX .4s cubic-bezier(.34,1.56,.64,1) ${i*0.06}s both;transform-origin:left" title="${g.name}: ${g.start}–${g.end} (${dur} unit)">
+      <span class="gb-label">${g.name}</span>
+      ${dur>1?`<span class="gb-dur">${dur}u</span>`:''}
+    </div>`;
+  }).join('');
+
+  const step=Math.max(1,Math.ceil(scale/12));
+  const ticks=[];
+  for(let i=0;i<=scale;i+=step)ticks.push(`<span class="tick" style="left:${(i/scale*100).toFixed(1)}%">${i}</span>`);
+
+  const legendItems=[...new Map(gantt.map(g=>[g.name,g])).values()];
+  const legendHTML=legendItems.map(g=>`<span class="legend-item"><span class="legend-box" style="background:${g.color};box-shadow:0 0 5px ${g.color}88"></span>${g.name}</span>`).join('');
+
+  const tableRows=metrics.map((m,i)=>`<tr class="anim-row" style="animation-delay:${i*0.07+0.3}s">
+    <td><div class="td-proc"><div class="td-dot" style="background:${m.color};box-shadow:0 0 5px ${m.color}99"></div><strong>${m.name}</strong></div></td>
+    <td style="color:var(--color-text-secondary)">${m.arrival}</td>
+    <td><span class="pill" style="background:${m.lc};color:${m.color}">${m.burst}</span></td>
+    <td style="font-weight:500">${m.finish}</td>
+    <td><span class="pill" style="background:#eff6ff;color:#3b82f6">${m.tat}</span></td>
+    <td><span class="pill" style="background:${m.wait<=0?'#ecfdf5':'#fef2f2'};color:${m.wait<=0?'#10b981':'#ef4444'}">${m.wait}</span></td>
+  </tr>`).join('');
+
+  const html=`
+  <div class="card anim-slide" style="animation-delay:.05s">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <div style="width:10px;height:32px;border-radius:3px;background:${ac};box-shadow:0 0 10px ${ac}88;animation:glow 2s ease-in-out infinite"></div>
+      <div>
+        <p class="section-title" style="margin-bottom:0">📊 Gantt Chart</p>
+        <p style="font-size:12px;color:var(--color-text-secondary)">${algoLabel}</p>
+      </div>
+    </div>
+    <div class="processing-bar"></div>
+    <div class="gantt-outer">
+      <div class="gantt">${ganttBlocks}</div>
+      <div class="tick-row">${ticks.join('')}</div>
+    </div>
+    <div class="legend">${legendHTML}</div>
+    <div class="metrics">
+      <div class="metric m1 anim-metric" style="animation-delay:.2s"><div class="metric-val" id="mv1">0.00</div><div class="metric-lbl">Avg. Waiting Time</div></div>
+      <div class="metric m2 anim-metric" style="animation-delay:.32s"><div class="metric-val" id="mv2">0.00</div><div class="metric-lbl">Avg. Turnaround Time</div></div>
+      <div class="metric m3 anim-metric" style="animation-delay:.44s"><div class="metric-val" id="mv3">0</div><div class="metric-lbl">Utilisasi CPU</div></div>
+    </div>
+  </div>
+  <div class="card anim-slide" style="animation-delay:.15s">
+    <p class="section-title">📋 Tabel Detail Proses</p>
+    <table>
+      <thead><tr>
+        <th>Proses</th><th>Tiba</th><th>Burst</th><th>Selesai</th>
+        <th><span style="color:#3b82f6">Turnaround</span></th><th>Waiting</th>
+      </tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+  </div>`;
+
+  const ra=document.getElementById('result-area');
+  ra.style.opacity='0';ra.style.transform='translateY(10px)';
+  ra.innerHTML=html;
+  requestAnimationFrame(()=>{
+    ra.style.transition='opacity .4s ease,transform .4s ease';
+    ra.style.opacity='1';ra.style.transform='translateY(0)';
+  });
+
+  setTimeout(()=>{
+    animateCounter(document.getElementById('mv1'),avgWait,2,'',0);
+    animateCounter(document.getElementById('mv2'),avgTat,2,'',120);
+    animateCounter(document.getElementById('mv3'),util,1,'%',240);
+  },300);
+}
+
+setAlgo('FCFS',document.querySelector('.tab.fcfs'));
+addProc();addProc();addProc();
+procs[0].arrival=0;procs[0].burst=6;
+procs[1].arrival=2;procs[1].burst=4;
+procs[2].arrival=4;procs[2].burst=3;
+renderProcList(false);
+</script>
